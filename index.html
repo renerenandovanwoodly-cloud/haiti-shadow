@@ -50,30 +50,76 @@ let barrel=mesh(g,new THREE.CylinderGeometry(.045,.055,.72,10),metal,0,.015,-.78
 box(g,0,-.19,-.13,.13,.32,.2,M.black);box(g,0,.14,-.15,.08,.07,.24,M.metal);box(g,0,-.06,.10,.07,.20,.10,M.black);
 const mag=box(g,0,-.27,-.14,.12,.31,.14,M.black);const flash=new THREE.Group();g.add(flash);mesh(flash,new THREE.ConeGeometry(.15,.38,8),M.flash,0,0,-.99).rotation.x=-Math.PI/2;flash.visible=false;return {g,mag,flash}}
 function limbSegment(parent,r,l,material,y){return capsule(parent,0,-l/2,0,r,l-2*r,material)}
-function humanoid(kind='hero'){const enemy=kind==='enemy',root=new THREE.Group(),rig={root,enemy,arms:[],legs:[],coat:[],muzzleTimer:0,reload:0,recoil:0,walk:Math.random()*5,hit:0};const clothes=enemy?M.enemyDark:M.suit,coatMat=enemy?M.enemy:M.coat,skin=enemy?M.skinLight:M.skin;
-const hips=new THREE.Group();hips.position.y=1.02;root.add(hips);rig.hips=hips;
-capsule(hips,0,.20,0,.26,.46,clothes,[1.45,1,.72]);capsule(hips,0,.80,0,.35,.63,clothes,[1.18,1,.72]);
-const chest=box(hips,0,.83,0,.88,.78,.48,enemy?M.enemy:M.suit);chest.scale.set(1,1,.92);
-box(hips,0,.84,-.25,.20,.62,.035,enemy?M.enemyDark:M.shirt);
-if(!enemy){for(let s of [-1,1]){let lapel=box(hips,s*.18,.95,-.278,.20,.56,.035,M.coat);lapel.rotation.z=s*.26}box(hips,0,.58,.265,.98,1.14,.09,M.coat);box(hips,-.34,.55,.33,.30,1.12,.09,M.coat);box(hips,.34,.55,.33,.30,1.12,.09,M.coat);box(hips,0,.77,-.31,.07,.35,.025,M.gold)}
-else {box(hips,0,.75,-.28,.72,.44,.08,M.enemy);for(let s of [-1,1])box(hips,s*.27,.78,-.34,.08,.35,.06,M.metal)}
-const neck=mesh(hips,new THREE.CylinderGeometry(.105,.12,.24,12),skin,0,1.27,0);
-const head=new THREE.Group();head.position.set(0,1.62,0);hips.add(head);rig.head=head;
-let face=mesh(head,new THREE.SphereGeometry(.30,24,18),skin,0,0,0);face.scale.set(.92,1.13,.88);
-mesh(head,new THREE.SphereGeometry(.34,20,14),enemy?M.black:M.hair,0,.18,.015).scale.set(1.08,.76,1.03);
-if(!enemy){for(let i=0;i<14;i++){let a=i*2.399,r=.27+Math.random()*.055,x=Math.cos(a)*r,y=.13+Math.sin(a)*r*.62;mesh(head,new THREE.SphereGeometry(.07,7,6),M.hair,x,y,Math.sin(a)*.12)}}
-for(let s of [-1,1]){mesh(head,new THREE.SphereGeometry(.052,10,8),skin,s*.30,-.04,0);if(!enemy){box(head,s*.115,.04,-.265,.13,.075,.028,M.black);mesh(head,new THREE.SphereGeometry(.024,8,8),M.gold,s*.115,.04,-.286)}}
-mesh(head,new THREE.SphereGeometry(.058,10,8),skin,0,-.02,-.285);mesh(head,new THREE.SphereGeometry(.13,12,9),enemy?M.black:M.hair,0,-.245,-.20).scale.set(.82,.52,.45);
-if(!enemy){box(head,0,-.14,-.283,.14,.025,.018,M.black);box(head,0,.09,-.295,.28,.035,.025,M.black)}
-// Articulated upper/lower arms and hands
-for(let s of [-1,1]){let shoulder=new THREE.Group();shoulder.position.set(s*.51,1.60,0);hips.add(shoulder);capsule(shoulder,0,-.25,0,.145,.42,clothes,[1,1,.95]);let elbow=new THREE.Group();elbow.position.set(0,-.48,-.015);shoulder.add(elbow);capsule(elbow,0,-.22,-.01,.115,.39,clothes);mesh(elbow,new THREE.SphereGeometry(.12,10,8),skin,0,-.44,-.04);rig.arms.push({shoulder,elbow,side:s});}
-for(let s of [-1,1]){let hip=new THREE.Group();hip.position.set(s*.24,0,0);hips.add(hip);capsule(hip,0,-.28,0,.155,.48,clothes);let knee=new THREE.Group();knee.position.set(0,-.52,0);hip.add(knee);capsule(knee,0,-.24,0,.13,.4,clothes);mesh(knee,new THREE.BoxGeometry(.31,.15,.48),M.black,0,-.47,-.11);rig.legs.push({hip,knee,side:s});}
-if(!enemy){for(let s of [-1,1]){let panel=box(root,s*.31,1.04,.34,.39,1.28,.10,M.coat);rig.coat.push(panel)}}
-else {box(hips,-.34,.68,-.27,.12,.32,.04,M.gold);box(hips,.34,.68,-.27,.12,.32,.04,M.gold)}
-rig.gun=makeRifle(root,enemy);rig.gun.g.position.set(enemy?.31:.34,enemy?1.82:1.82,enemy?-.48:-.48);rig.gun.g.rotation.x=0;
-root.add(hips);return rig}
+function humanoid(kind='hero'){
+ const enemy=kind==='enemy',root=new THREE.Group(),rig={root,enemy,arms:[],legs:[],coat:[],muzzleTimer:0,reload:0,recoil:0,walk:Math.random()*5};
+ const clothes=enemy?M.enemyDark:M.suit,coatMat=enemy?M.enemy:M.coat,skin=enemy?M.skinLight:M.skin;
+ const hips=new THREE.Group();hips.position.y=.98;root.add(hips);rig.hips=hips;
+ // pelvis and fitted torso: tapered, rounded anatomy instead of a single rectangular block
+ capsule(hips,0,.12,0,.27,.32,clothes,[1.25,1,.78]);
+ capsule(hips,0,.77,0,.37,.62,enemy?M.enemy:clothes,[1.12,1.18,.72]);
+ capsule(hips,0,.76,.285,.38,.70,coatMat,[1.05,1.22,.22]);
+ if(!enemy){
+   box(hips,0,.72,-.247,.17,.69,.035,M.shirt);
+   for(let s of [-1,1]){let lapel=mesh(hips,new THREE.BoxGeometry(.18,.58,.045),M.coat,s*.15,1.02,-.285);lapel.rotation.z=-s*.23;}
+   box(hips,0,.27,.30,.76,.10,.10,M.coat);
+   box(hips,-.38,.30,.30,.19,.12,.12,M.coat);box(hips,.38,.30,.30,.19,.12,.12,M.coat);
+   box(hips,0,.42,-.30,.035,.28,.025,M.gold);
+ } else {
+   box(hips,0,.68,-.255,.58,.34,.045,M.enemyDark);
+   box(hips,0,.22,.28,.72,.10,.12,M.metal);
+   box(hips,-.34,.55,-.27,.09,.30,.05,M.gold);box(hips,.34,.55,-.27,.09,.30,.05,M.gold);
+ }
+ // Neck and detailed head, hair, brows, nose, beard and sunglasses
+ mesh(hips,new THREE.CylinderGeometry(.105,.13,.22,14),skin,0,1.36,0);
+ const head=new THREE.Group();head.position.set(0,1.53,-.015);hips.add(head);rig.head=head;
+ let face=mesh(head,new THREE.SphereGeometry(.30,24,18),skin,0,0,0);face.scale.set(.91,1.12,.88);
+ mesh(head,new THREE.SphereGeometry(.335,22,16),M.hair,0,.16,.025).scale.set(1.06,.72,1.02);
+ // textured afro curls on hero, compact haircut on enemy
+ if(!enemy){for(let i=0;i<24;i++){let a=i*2.399,r=.24+(i%4)*.018,x=Math.cos(a)*r,y=.13+Math.sin(a)*r*.60,z=.04+Math.sin(a*2)*.10;mesh(head,new THREE.SphereGeometry(.058,7,6),M.hair,x,y,z);}}
+ for(let s of [-1,1]){
+   mesh(head,new THREE.SphereGeometry(.055,10,8),skin,s*.285,-.035,0);
+   if(!enemy){box(head,s*.115,.035,-.268,.13,.075,.026,M.black);mesh(head,new THREE.SphereGeometry(.026,8,8),M.gold,s*.115,.035,-.286);}
+   box(head,s*.105,.12,-.263,.095,.025,.025,M.black);
+ }
+ mesh(head,new THREE.SphereGeometry(.045,10,8),skin,0,-.005,-.286);
+ mesh(head,new THREE.SphereGeometry(.13,12,9),M.black,0,-.235,-.18).scale.set(.82,.5,.43);
+ box(head,0,-.13,-.278,.13,.023,.018,M.black);
+ // Long formal coat tails, split so the legs remain visible while running
+ if(!enemy){
+   for(let s of [-1,1]){let tail=mesh(root,new THREE.CapsuleGeometry(.20,.72,6,10),M.coat,s*.225,.88,.34);tail.scale.set(1,1.15,.30);rig.coat.push(tail);}
+ } else {
+   for(let s of [-1,1]){box(hips,s*.23,.05,.24,.35,.48,.10,M.enemyDark);}
+ }
+ // Shoulder pivots are lowered to the actual shoulder line. Each arm has upper arm,
+ // elbow, forearm and hand so the rifle is held by the hands rather than floating.
+ for(let s of [-1,1]){
+   let shoulder=new THREE.Group();shoulder.position.set(s*.43,1.12,0);hips.add(shoulder);
+   capsule(shoulder,0,-.22,0,.135,.39,clothes,[1,1,.94]);
+   let elbow=new THREE.Group();elbow.position.set(0,-.43,-.015);shoulder.add(elbow);
+   capsule(elbow,0,-.18,-.012,.115,.34,clothes);
+   mesh(elbow,new THREE.SphereGeometry(.105,12,9),skin,0,-.39,-.03);
+   rig.arms.push({shoulder,elbow,side:s});
+ }
+ // Separate thigh, shin and boot pivots create a readable full human stance.
+ for(let s of [-1,1]){
+   let hip=new THREE.Group();hip.position.set(s*.22,-.02,0);hips.add(hip);
+   capsule(hip,0,-.27,0,.16,.44,clothes,[1,1,.96]);
+   let knee=new THREE.Group();knee.position.set(0,-.53,0);hip.add(knee);
+   mesh(knee,new THREE.SphereGeometry(.145,12,10),clothes,0,-.015,0);
+   capsule(knee,0,-.245,0,.135,.36,clothes);
+   mesh(knee,new THREE.BoxGeometry(.30,.16,.47),M.black,0,-.47,-.115);
+   box(knee,0,-.30,-.17,.17,.10,.025,M.gold);
+   rig.legs.push({hip,knee,side:s});
+ }
+ rig.gun=makeRifle(root,enemy);
+ rig.gun.g.position.set(enemy?.34:.37,1.56,-.46);
+ rig.gun.g.rotation.x=0;
+ // tiny sling/strap detail on the hero's coat
+ if(!enemy){let strap=box(root,.28,1.48,.43,.055,.95,.04,M.gold);strap.rotation.z=-.18;}
+ return rig
+}
 const hero=humanoid('hero'),player=hero.root;scene.add(player);player.position.set(0,0,1);
-function poseGun(rig,walk=0,aiming=true){for(const a of rig.arms){let s=a.side;a.shoulder.rotation.x=aiming?1.12+Math.sin(walk)*.025:Math.sin(walk)*.35;a.shoulder.rotation.z=s*(aiming?.12:.08);a.elbow.rotation.x=aiming?.48:0}if(rig.reload>0){rig.arms[0].shoulder.rotation.x=-.35;rig.arms[0].elbow.rotation.x=-1.15;rig.gun.mag.position.y=-.58+Math.min(.16,rig.reload*.10)}else rig.gun.mag.position.y=-.27}
+function poseGun(rig,walk=0,aiming=true){for(const a of rig.arms){let s=a.side;a.shoulder.rotation.x=aiming?1.10+Math.sin(walk)*.025:Math.sin(walk)*.25;a.shoulder.rotation.z=s*(aiming?.10:.05);a.elbow.rotation.x=aiming?.52:0}if(rig.reload>0){rig.arms[0].shoulder.rotation.x=-.35;rig.arms[0].elbow.rotation.x=-1.15;rig.gun.mag.position.y=-.58+Math.min(.16,rig.reload*.10)}else rig.gun.mag.position.y=-.27}
 const enemyRigs=[humanoid('enemy'),humanoid('enemy'),humanoid('enemy'),humanoid('enemy')];const enemies=[];const starts=[[-2.8,-27],[3.5,-43],[-1,-64],[4,-88]];enemyRigs.forEach((r,i)=>{scene.add(r.root);r.root.position.set(starts[i][0],0,starts[i][1]);r.hp=5;r.maxHp=5;r.fireTimer=.8+i*.5;r.attackTimer=.7+i*.3;r.alive=true;r.root.scale.setScalar(1);let bg=box(r.root,0,2.92,0,.9,.09,.06,M.black),bar=box(r.root,0,2.94,-.04,.82,.055,.04,mat(0xe34a3b));r.bar=bar;r.barBg=bg;enemies.push(r)});
 const bullets=[],bulletGeo=new THREE.SphereGeometry(.095,8,8),bulletMat=new THREE.MeshStandardMaterial({color:0xff552f,emissive:0xff2600,emissiveIntensity:2.2,roughness:.25});
 function spawnBullet(from,to){let b=mesh(scene,bulletGeo,bulletMat,from.x,from.y,from.z),dir=to.clone().sub(from).normalize();let tracer=mesh(scene,new THREE.CylinderGeometry(.025,.025,.65,6),M.red,from.x,from.y,from.z);tracer.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);bullets.push({mesh:b,tracer,dir,speed:22,life:2.5})}
@@ -106,7 +152,7 @@ if(fireHeld)shoot();hero.recoil=Math.max(0,hero.recoil-dt*1.8);hero.gun.g.rotati
 for(let e of enemies){if(!e.alive)continue;let dx=player.position.x-e.root.position.x,dz=player.position.z-e.root.position.z,d=Math.hypot(dx,dz);if(d<78)threat=true;
 e.root.rotation.y=Math.atan2(-dx,-dz);e.recoil=Math.max(0,(e.recoil||0)-dt*1.8);e.gun.g.rotation.x=-e.recoil*1.25;
 if(d<70&&d>9){e.root.position.x+=dx/d*2.8*dt;e.root.position.z+=dz/d*2.8*dt;e.walk+=dt*8;e.legs.forEach(l=>{l.hip.rotation.x=Math.sin(e.walk+(l.side<0?0:Math.PI))*.55;l.knee.rotation.x=Math.max(0,Math.sin(e.walk+(l.side<0?Math.PI:0)))*.45});poseGun(e,e.walk,true)}
-if(d<=32&&d>4){e.fireTimer-=dt;if(e.fireTimer<=0){let from=e.gun.g.localToWorld(new THREE.Vector3(0,0,-1.02)),to=player.position.clone().add(new THREE.Vector3(0,1.35,0));spawnBullet(from,to);e.recoil=.12;muzzleFlash(e);e.fireTimer=1.0+Math.random()*.55;e.arms.forEach(a=>a.shoulder.rotation.x=1.28)}}
+if(d<=32&&d>4){e.fireTimer-=dt;if(e.fireTimer<=0){let from=e.gun.g.localToWorld(new THREE.Vector3(0,0,-1.02)),to=player.position.clone().add(new THREE.Vector3(0,1.35,0));spawnBullet(from,to);e.recoil=.12;muzzleFlash(e);e.fireTimer=1.0+Math.random()*.55;e.arms.forEach(a=>{a.shoulder.rotation.x=1.18;a.elbow.rotation.x=.55})}}
 if(d<=3.2){e.attackTimer-=dt;if(e.attackTimer<=0){damagePlayer(10);e.attackTimer=1.0;e.arms.forEach(a=>a.shoulder.rotation.x=-1.5)}}
 if(e.hit>0){e.hit-=dt;e.root.position.y=.04}else e.root.position.y=0
 }
