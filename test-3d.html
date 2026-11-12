@@ -29,9 +29,10 @@
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x899eaa);scene.fog=new THREE.Fog(0x899eaa,55,195);
 const camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,450);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.13;document.body.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xcce7ff,0x514033,1.75));const sun=new THREE.DirectionalLight(0xffd6a3,2.35);sun.position.set(-30,50,24);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-60;sun.shadow.camera.right=60;sun.shadow.camera.top=60;sun.shadow.camera.bottom=-60;scene.add(sun);const fill=new THREE.PointLight(0x76a4d8,30,78);fill.position.set(12,9,-27);scene.add(fill);const heroRim=new THREE.DirectionalLight(0xb8cce0,1.1);heroRim.position.set(4,8,13);scene.add(heroRim);
+scene.add(new THREE.HemisphereLight(0xcce7ff,0x514033,1.75));const sun=new THREE.DirectionalLight(0xffd6a3,2.35);sun.position.set(-30,50,24);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-60;sun.shadow.camera.right=60;sun.shadow.camera.top=60;sun.shadow.camera.bottom=-60;scene.add(sun);const fill=new THREE.PointLight(0x76a4d8,30,78);fill.position.set(12,9,-27);scene.add(fill);
+const heroRim=new THREE.DirectionalLight(0xb8cce0,1.15);heroRim.position.set(4,8,13);scene.add(heroRim);const heroRim=new THREE.DirectionalLight(0xb8cce0,1.1);heroRim.position.set(4,8,13);scene.add(heroRim);
 const mat=(c,r=.82,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
-const M={road:mat(0x292d31),side:mat(0x9b9488),line:mat(0xe5d4a5),window:mat(0x263e54,.38,.18),glass:mat(0x315165,.25,.2),lit:mat(0xf7c875,.3),skin:mat(0x68402e),skinLight:mat(0x87553e),black:mat(0x080b10),hair:mat(0x08090b),suit:mat(0x343a42,.74),coat:mat(0x20262e,.82),pants:mat(0x2c333c,.84),shirt:mat(0xe3e2dc),gold:mat(0xc59b45,.3,.65),tire:mat(0x090a0b),enemy:mat(0x59616a),enemyDark:mat(0x3c434b),metal:mat(0x343b43,.35,.7),gun:mat(0x20252b,.34,.72),red:mat(0xd94a28,.32,.2),flash: new THREE.MeshBasicMaterial({color:0xffd16a})};
+const M={road:mat(0x292d31),side:mat(0x9b9488),line:mat(0xe5d4a5),window:mat(0x263e54,.38,.18),glass:mat(0x315165,.25,.2),lit:mat(0xf7c875,.3),skin:mat(0x68402e),skinLight:mat(0x87553e),black:mat(0x080b10),hair:mat(0x08090b),suit:mat(0x49515b,.78),coat:mat(0x343c46,.82),pants:mat(0x303944,.82),shirt:mat(0xe3e2dc),gold:mat(0xc59b45,.3,.65),tire:mat(0x090a0b),enemy:mat(0x59616a),enemyDark:mat(0x3c434b),metal:mat(0x343b43,.35,.7),gun:mat(0x20252b,.34,.72),red:mat(0xd94a28,.32,.2),flash: new THREE.MeshBasicMaterial({color:0xffd16a})};
 function mesh(parent,geo,material,x=0,y=0,z=0){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function box(parent,x,y,z,w,h,d,c){return mesh(parent,new THREE.BoxGeometry(w,h,d),typeof c==='number'?mat(c):c,x,y,z)}
 function capsule(parent,x,y,z,r,len,c,scale=[1,1,1]){let o=mesh(parent,new THREE.CapsuleGeometry(r,len,5,10),c,x,y,z);o.scale.set(...scale);return o}
@@ -57,7 +58,8 @@ function humanoid(kind='hero'){
  // pelvis and fitted torso: tapered, rounded anatomy instead of a single rectangular block
  capsule(hips,0,.12,0,.27,.32,clothes,[1.25,1,.78]);
  capsule(hips,0,.77,0,.37,.62,enemy?M.enemy:clothes,[1.12,1.18,.72]);
- capsule(hips,0,.76,.285,.38,.70,coatMat,[1.05,1.22,.22]);
+ capsule(hips,0,.76,.285,.38,.62,coatMat,[1.02,1.10,.20]);
+ if(!enemy){box(hips,0,.40,.335,.56,.035,.025,mat(0x69737d));box(hips,-.28,.58,.344,.035,.05,.025,M.gold);box(hips,.28,.58,.344,.035,.05,.025,M.gold);}
  if(!enemy){
    box(hips,0,.72,-.247,.17,.69,.035,M.shirt);
    for(let s of [-1,1]){let lapel=mesh(hips,new THREE.BoxGeometry(.18,.58,.045),M.coat,s*.15,1.02,-.285);lapel.rotation.z=-s*.23;}
@@ -86,7 +88,7 @@ function humanoid(kind='hero'){
  box(head,0,-.13,-.278,.13,.023,.018,M.black);
  // Long formal coat tails, split so the legs remain visible while running
  if(!enemy){
-   for(let s of [-1,1]){let tail=mesh(root,new THREE.BoxGeometry(.20,.66,.075),M.coat,s*.35,.50,.31);tail.rotation.x=-.035;rig.coat.push(tail);}
+   for(let s of [-1,1]){let tail=mesh(root,new THREE.BoxGeometry(.22,.54,.075),M.coat,s*.32,.46,.34);tail.rotation.x=-.025;rig.coat.push(tail);}
  } else {
    for(let s of [-1,1]){box(hips,s*.23,.05,.24,.35,.48,.10,M.enemyDark);}
  }
@@ -112,14 +114,14 @@ function humanoid(kind='hero'){
    rig.legs.push({hip,knee,side:s});
  }
  rig.gun=makeRifle(root,enemy);
- rig.gun.g.position.set(enemy?.50:.57,1.59,-.20);
+ rig.gun.g.position.set(enemy?.48:.58,1.18,.10);
  rig.gun.g.rotation.set(0,0,0);
  // Subtle seam detail; the rifle remains visible beyond the right shoulder.
  if(!enemy){box(root,0,1.25,.337,.018,.72,.022,mat(0x626a72));box(hips,-.30,.62,.345,.045,.045,.025,M.gold);box(hips,.30,.62,.345,.045,.045,.025,M.gold);}
  return rig
 }
 const hero=humanoid('hero'),player=hero.root;scene.add(player);player.position.set(0,0,1);
-function poseGun(rig,walk=0,aiming=true){for(const a of rig.arms){let s=a.side;a.shoulder.rotation.x=aiming?.78+Math.sin(walk)*.025:Math.sin(walk)*.20;a.shoulder.rotation.z=s*(aiming?.30:.10);a.elbow.rotation.x=aiming?.88:0}if(rig.reload>0){rig.arms[0].shoulder.rotation.x=-.35;rig.arms[0].elbow.rotation.x=-1.15;rig.gun.mag.position.y=-.58+Math.min(.16,rig.reload*.10)}else rig.gun.mag.position.y=-.27}
+function poseGun(rig,walk=0,aiming=true){for(const a of rig.arms){let s=a.side;a.shoulder.rotation.x=aiming?.48+Math.sin(walk)*.025:Math.sin(walk)*.12;a.shoulder.rotation.z=s*(aiming?.24:.055);a.elbow.rotation.x=aiming?1.0:.08}const target=aiming?new THREE.Vector3(.16,1.48,-.48):new THREE.Vector3(rig.enemy?.48:.58,1.18,.10);rig.gun.g.position.lerp(target,.25);if(rig.reload>0){rig.arms[0].shoulder.rotation.x=.15;rig.arms[0].elbow.rotation.x=1.20;rig.gun.mag.position.y=-.58+Math.min(.16,rig.reload*.10)}else rig.gun.mag.position.y=-.27}
 const enemyRigs=[humanoid('enemy'),humanoid('enemy'),humanoid('enemy'),humanoid('enemy')];const enemies=[];const starts=[[-2.8,-27],[3.5,-43],[-1,-64],[4,-88]];enemyRigs.forEach((r,i)=>{scene.add(r.root);r.root.position.set(starts[i][0],0,starts[i][1]);r.hp=5;r.maxHp=5;r.fireTimer=.8+i*.5;r.attackTimer=.7+i*.3;r.alive=true;r.root.scale.setScalar(1);let bg=box(r.root,0,2.92,0,.9,.09,.06,M.black),bar=box(r.root,0,2.94,-.04,.82,.055,.04,mat(0xe34a3b));r.bar=bar;r.barBg=bg;enemies.push(r)});
 const bullets=[],bulletGeo=new THREE.SphereGeometry(.095,8,8),bulletMat=new THREE.MeshStandardMaterial({color:0xff552f,emissive:0xff2600,emissiveIntensity:2.2,roughness:.25});
 function spawnBullet(from,to){let b=mesh(scene,bulletGeo,bulletMat,from.x,from.y,from.z),dir=to.clone().sub(from).normalize();let tracer=mesh(scene,new THREE.CylinderGeometry(.025,.025,.65,6),M.red,from.x,from.y,from.z);tracer.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);bullets.push({mesh:b,tracer,dir,speed:22,life:2.5})}
@@ -145,14 +147,14 @@ function loop(){requestAnimationFrame(loop);let dt=Math.min(clock.getDelta(),.04
 let sx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x,sz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joy.y,moving=Math.hypot(sx,sz)>.08,sprint=keys.shift||mobileSprint,speed=sprint?8.0:4.0;
 if(moving){let v=new THREE.Vector3(sx,0,sz).normalize();if(!mouseAim)player.rotation.y=Math.atan2(v.x,-v.z);player.position.x+=v.x*speed*dt;player.position.z+=v.z*speed*dt;player.position.x=THREE.MathUtils.clamp(player.position.x,-7.6,7.6);walkPhase+=dt*(sprint?13:8)}
 if(!grounded){player.position.y+=jumpV*dt;jumpV-=18*dt;if(player.position.y<=0){player.position.y=0;jumpV=0;grounded=true}}
-hero.legs.forEach(l=>{l.hip.rotation.x=Math.sin(walkPhase+(l.side<0?0:Math.PI))*(moving?(sprint?.78:.48):.02);l.knee.rotation.x=Math.max(0,Math.sin(walkPhase+(l.side<0?Math.PI:0)))*.6});poseGun(hero,walkPhase,!moving||fireHeld||mouseAim);
+hero.legs.forEach(l=>{l.hip.rotation.x=Math.sin(walkPhase+(l.side<0?0:Math.PI))*(moving?(sprint?.78:.48):.02);l.knee.rotation.x=Math.max(0,Math.sin(walkPhase+(l.side<0?Math.PI:0)))*.6});poseGun(hero,walkPhase,moving||fireHeld||mouseAim);
 hero.coat.forEach((c,i)=>{c.rotation.x=Math.sin(walkPhase*.6+i)*.16;c.rotation.z=Math.sin(walkPhase*.45+i)*.05});
 if(reloading){reloadTime-=dt;hero.reload=reloadTime;if(reloadTime<=0){let need=30-ammo,load=Math.min(need,reserve);ammo+=load;reserve-=load;reloading=false;hero.reload=0;hero.gun.mag.position.y=-.27;updateHUD()}}
 if(fireHeld)shoot();hero.recoil=Math.max(0,hero.recoil-dt*1.8);hero.gun.g.rotation.x=-hero.recoil*1.25;let threat=false;
 for(let e of enemies){if(!e.alive)continue;let dx=player.position.x-e.root.position.x,dz=player.position.z-e.root.position.z,d=Math.hypot(dx,dz);if(d<78)threat=true;
 e.root.rotation.y=Math.atan2(-dx,-dz);e.recoil=Math.max(0,(e.recoil||0)-dt*1.8);e.gun.g.rotation.x=-e.recoil*1.25;
 if(d<70&&d>9){e.root.position.x+=dx/d*2.8*dt;e.root.position.z+=dz/d*2.8*dt;e.walk+=dt*8;e.legs.forEach(l=>{l.hip.rotation.x=Math.sin(e.walk+(l.side<0?0:Math.PI))*.55;l.knee.rotation.x=Math.max(0,Math.sin(e.walk+(l.side<0?Math.PI:0)))*.45});poseGun(e,e.walk,true)}
-if(d<=32&&d>4){e.fireTimer-=dt;if(e.fireTimer<=0){let from=e.gun.g.localToWorld(new THREE.Vector3(0,0,-1.02)),to=player.position.clone().add(new THREE.Vector3(0,1.35,0));spawnBullet(from,to);e.recoil=.12;muzzleFlash(e);e.fireTimer=1.0+Math.random()*.55;e.arms.forEach(a=>{a.shoulder.rotation.x=1.18;a.elbow.rotation.x=.55})}}
+if(d<=32&&d>4){e.fireTimer-=dt;if(e.fireTimer<=0){let from=e.gun.g.localToWorld(new THREE.Vector3(0,0,-1.02)),to=player.position.clone().add(new THREE.Vector3(0,1.35,0));spawnBullet(from,to);e.recoil=.12;muzzleFlash(e);e.fireTimer=1.0+Math.random()*.55;e.arms.forEach(a=>{a.shoulder.rotation.x=.52;a.elbow.rotation.x=1.0})}}
 if(d<=3.2){e.attackTimer-=dt;if(e.attackTimer<=0){damagePlayer(10);e.attackTimer=1.0;e.arms.forEach(a=>a.shoulder.rotation.x=-1.5)}}
 if(e.hit>0){e.hit-=dt;e.root.position.y=.04}else e.root.position.y=0
 }
