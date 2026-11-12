@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ht"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>HAITI SHADOW — 3D TEST DIRECT</title>
+<style>
+:root{--gold:#f2c14e;--panel:#101923dd}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101820;color:#fff;font-family:Arial,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}
+#brand{position:fixed;top:15px;left:18px;z-index:3;text-shadow:0 2px 8px #000}#brand b{font-size:clamp(19px,3vw,27px);letter-spacing:3px;color:#f4f0e5}#brand span{color:#df4b3d}#brand small{display:block;font-size:10px;letter-spacing:2px;margin-top:4px;color:#e3c779}
+#stats{position:fixed;right:17px;top:15px;z-index:3;background:var(--panel);border:1px solid #ffffff33;border-radius:10px;padding:10px 13px;min-width:130px;font-size:12px;line-height:1.9;text-shadow:0 1px 3px #000}
+#mission{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:3;background:#101923bb;border:1px solid #ffffff30;padding:8px 13px;border-radius:8px;text-align:center;font-size:11px;letter-spacing:1px;white-space:nowrap}
+#mission strong{color:var(--gold);display:block;font-size:13px;margin-bottom:3px}
+#reticle{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;z-index:2;pointer-events:none}#reticle:before,#reticle:after{content:"";position:absolute;background:#ffffffbb;box-shadow:0 0 3px #000}#reticle:before{width:16px;height:2px;top:7px}#reticle:after{height:16px;width:2px;left:7px}
+#hint{position:fixed;bottom:13px;left:50%;transform:translateX(-50%);background:#101923bb;border:1px solid #ffffff25;padding:8px 12px;border-radius:8px;font-size:11px;z-index:3;white-space:nowrap}
+#overlay{position:fixed;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#07121beF,#162332dd);padding:20px}
+#card{width:min(480px,94vw);padding:26px;background:linear-gradient(145deg,#1d2b3a,#0b131d);border:1px solid #a6aeb566;border-radius:17px;box-shadow:0 20px 70px #000a;text-align:center}
+#card h1{margin:0;color:#f4c653;font-size:clamp(27px,6vw,43px);letter-spacing:4px;text-shadow:0 3px 15px #b43c2866}#card h2{margin:7px 0 15px;font-size:12px;letter-spacing:3px;color:#c6d0dc;font-weight:500}#card p{font-size:14px;line-height:1.55;color:#dbe3eb}#play{margin-top:10px;border:0;background:linear-gradient(180deg,#f6d06a,#d99c25);border-radius:9px;padding:14px 28px;font-weight:800;font-size:16px;letter-spacing:1px;color:#151515;cursor:pointer}
+#loading{color:#e6c16a;font-size:12px;margin-top:12px}
+#mobile{display:none;position:fixed;bottom:25px;left:20px;width:120px;height:120px;border:2px solid #ffffff77;border-radius:50%;background:#111a;z-index:5;touch-action:none}
+#nub{position:absolute;width:46px;height:46px;left:35px;top:35px;border-radius:50%;background:#f4f4f4bb}
+#shoot,#sprint{display:none;position:fixed;z-index:5;border:2px solid #fff9;border-radius:50%;color:white;font-weight:bold;background:#9d2525cc;touch-action:none}
+#shoot{width:76px;height:76px;right:22px;bottom:35px}#sprint{width:60px;height:60px;right:110px;bottom:48px;background:#253d55dd}
+@media(pointer:coarse){#mobile,#shoot,#sprint{display:block}#hint{bottom:158px;font-size:10px}#mission{top:76px}}
+</style></head><body>
+<div id="brand"><b>HAITI <span>SHADOW</span></b><small>OPEN-WORLD ACTION · 3D TEST BUILD</small></div>
+<div id="mission"><strong>MISSION 01</strong> ANTRE NAN ZÒN NAN</div>
+<div id="stats">PÈSONAJ: WENDYYYKING<br>SANTE: <span id="health">100</span>%<br>ELIMINASYON: <span id="kills">0</span></div>
+<div id="reticle"></div><div id="hint">WASD / FLÈCH · SHIFT KOURI · ESPAS SOTE · KLIK TIRE</div>
+<div id="mobile"><div id="nub"></div></div><button id="shoot">TIRE</button><button id="sprint">KOURI</button>
+<div id="overlay"><div id="card"><h1>HAITI SHADOW</h1><h2>WENDYYYKING · THE STRATEGIST</h2><p>Antre nan premye zòn 3D a. Eksplore lari a, kouri, sote epi teste tir la sou sib yo. Sa a se yon pwototip grafik 3D pou teste sou laptop.</p><p><b>WASD</b> deplase · <b>SHIFT</b> kouri · <b>SPACE</b> sote · <b>KLIK</b> tire</p><button id="play">KÒMANSE JWE</button><div id="loading">Ap prepare vil la…</div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(()=>{const loading=document.getElementById('loading');if(!window.THREE){loading.textContent='Grafik 3D a pa t chaje. Verifye entènèt la epi rechaje paj la.';return}
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x899ba7);scene.fog=new THREE.Fog(0x899ba7,55,190);
+const camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,500);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xc8e3ff,0x554438,1.6));
+const sun=new THREE.DirectionalLight(0xffd7a2,2.3);sun.position.set(-35,55,28);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;scene.add(sun);
+const fill=new THREE.PointLight(0x6e9dc8,35,75);fill.position.set(12,10,-26);scene.add(fill);
+const mat=(c,r=.84,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+const mats={road:mat(0x292d31),side:mat(0x9a9385),line:mat(0xe5d4a5),window:mat(0x263c4e,.45,.25),lit:mat(0xf6c879,.3),skin:mat(0x68402e),black:mat(0x080b10),suit:mat(0x11151b,.7),coat:mat(0x080c12,.85),shirt:mat(0xe2e2df),gold:mat(0xc59b45,.3,.7),wheel:mat(0x101114),tire:mat(0x090a0b),red:mat(0x8e302b),green:mat(0x3a6048)};
+function mesh(parent,geo,material,x=0,y=0,z=0){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function box(parent,x,y,z,w,h,d,c){return mesh(parent,new THREE.BoxGeometry(w,h,d),typeof c==='number'?mat(c):c,x,y,z)}
+const ground=mesh(scene,new THREE.PlaneGeometry(500,500),mat(0x586754));ground.rotation.x=-Math.PI/2;ground.position.y=-.09;ground.receiveShadow=true;
+box(scene,0,-.015,-70,18,.12,250,mats.road);box(scene,-10.1,.01,-70,2,.2,250,mats.side);box(scene,10.1,.01,-70,2,.2,250,mats.side);
+for(let z=-185;z<35;z+=13)box(scene,0,.06,z,.20,.015,5,mats.line);
+for(let side of [-1,1]){box(scene,side*11.7,.12,-70,1.2,.3,250,mat(0x77766c));for(let z=-180;z<25;z+=16){let h=7+Math.random()*12,w=8+Math.random()*3,d=10+Math.random()*5,x=side*(18+Math.random()*2);let colors=[0xc18c6c,0xd0b991,0xb9a58d,0x8f9c91,0xb66f59,0xbeb5a4];let b=box(scene,x,h/2,z,w,h,d,mat(colors[Math.floor(Math.random()*colors.length)]));b.castShadow=true;
+let faceX=x-side*(w/2+.035);for(let yy=2.2;yy<h-1;yy+=2.5)for(let zz=z-d/2+1.3;zz<z+d/2-1;zz+=2.5){box(scene,faceX,yy,zz,.08,1.15,1.05,mats.window);box(scene,faceX-side*.06,yy+.58,zz,.10,.07,1.14,mat(0x5b554b));}
+if(Math.random()>.35){box(scene,x,1.1,z-d/2-.3,w*.65,.18,.8,mat(0x4c514f));}
+}}
+function palm(x,z){const g=new THREE.Group();scene.add(g);mesh(g,new THREE.CylinderGeometry(.16,.28,5,7),mat(0x70513a),0,2.5,0);for(let i=0;i<7;i++){let a=i*Math.PI*2/7;let leaf=mesh(g,new THREE.ConeGeometry(.24,3.7,5),mat(0x286143),Math.cos(a)*1.25,5.2+Math.sin(a)*.3,Math.sin(a)*1.25);leaf.rotation.z=Math.cos(a)*-.6;leaf.rotation.x=Math.sin(a)*.6;}g.position.set(x,0,z)}
+for(let z=-170;z<25;z+=25){palm(-9.8,z);palm(9.8,z)}
+// Hilltop fort and city skyline
+const hill=mesh(scene,new THREE.ConeGeometry(32,23,9),mat(0x566a51),0,9,-177);hill.scale.z=.65;
+box(scene,0,21,-178,23,5,12,mat(0x88745c));for(let x=-10;x<=10;x+=5)box(scene,x,24,-178,2.8,2,12,mat(0xa38a69));
+// street lamps
+for(let z=-160;z<15;z+=35)for(let s of [-1,1]){let g=new THREE.Group();scene.add(g);mesh(g,new THREE.CylinderGeometry(.07,.1,5,8),mat(0x22282d),0,2.5,0);mesh(g,new THREE.BoxGeometry(1.5,.09,.12),mat(0x22282d),s*.65,4.9,0);mesh(g,new THREE.BoxGeometry(.5,.13,.28),mats.lit,s*1.25,4.82,0);g.position.set(s*10.8,0,z)}
+function car(x,z,color){let g=new THREE.Group();scene.add(g);g.position.set(x,.2,z);box(g,0,.55,0,2.1,.75,4,mat(color,.42,.25));box(g,0,1.12,-.18,1.65,.73,2.1,mat(0x243847,.22,.3));for(let s of [-1,1])for(let zz of [-1.25,1.25]){let w=mesh(g,new THREE.CylinderGeometry(.34,.34,.2,14),mats.tire,s*1.06,.34,zz);w.rotation.z=Math.PI/2;mesh(g,new THREE.CylinderGeometry(.18,.18,.21,12),mats.gold,s*1.07,.34,zz).rotation.z=Math.PI/2;}for(let s of [-1,1])box(g,s*.72,.53,-2.02,.36,.18,.04,mats.lit);return g}
+car(-5.7,-17,0x142b3c);car(5.6,-51,0x8f2924);car(-5.4,-86,0x30343a);
+// Wendyyyking game character, modeled as a full 3D person
+const player=new THREE.Group();scene.add(player);player.position.set(0,0,1);
+const torso=new THREE.Group();player.add(torso);
+box(torso,0,1.62,0,.94,1.12,.48,mats.suit);box(torso,0,1.65,-.255,.22,.84,.035,mats.shirt);box(torso,0,1.62,.27,.98,1.3,.10,mats.coat);
+box(torso,-.28,1.55,.34,.36,1.48,.09,mats.coat);box(torso,.28,1.55,.34,.36,1.48,.09,mats.coat);
+const head=new THREE.Group();head.position.set(0,2.48,-.015);player.add(head);
+mesh(head,new THREE.SphereGeometry(.32,20,16),mats.skin,0,0,0);mesh(head,new THREE.SphereGeometry(.36,20,12),mats.black,0,.14,.015);
+mesh(head,new THREE.BoxGeometry(.6,.105,.07),mats.black,0,.035,-.295);mesh(head,new THREE.SphereGeometry(.19,14,9),mats.black,0,-.19,-.16);
+mesh(head,new THREE.BoxGeometry(.12,.08,.08),mats.gold,0,-.11,-.31);
+const limbs=[];
+for(let s of [-1,1]){let arm=new THREE.Group();arm.position.set(s*.58,2.03,0);player.add(arm);mesh(arm,new THREE.CapsuleGeometry(.13,.60,5,8),mats.suit,0,-.40,0);mesh(arm,new THREE.SphereGeometry(.14,10,8),mats.skin,0,-.80,-.015);limbs.push({g:arm,phase:s<0?0:Math.PI});
+let leg=new THREE.Group();leg.position.set(s*.25,1.03,0);player.add(leg);mesh(leg,new THREE.CapsuleGeometry(.17,.68,5,8),mats.suit,0,-.42,0);mesh(leg,new THREE.BoxGeometry(.34,.17,.58),mats.black,0,-.84,-.10);limbs.push({g:leg,phase:s<0?Math.PI:0});}
+const coatL=box(player,-.30,1.12,.37,.42,1.35,.10,mats.coat),coatR=box(player,.30,1.12,.37,.42,1.35,.10,mats.coat);
+const weapon=box(player,.35,1.45,-.58,.12,.15,.85,mat(0x252a2e,.4,.6));weapon.rotation.x=-.08;
+function makeEnemy(x,z){let g=new THREE.Group();scene.add(g);g.position.set(x,0,z);box(g,0,1.5,0,.85,1,.45,mats.red);mesh(g,new THREE.SphereGeometry(.29,14,12),mats.skin,0,2.22,0);mesh(g,new THREE.SphereGeometry(.31,14,9),mats.black,0,2.34,.015);let bar=box(g,0,2.75,0,.75,.07,.05,mat(0x1b1b1b));return {g,hp:3,bar}}
+const enemies=[makeEnemy(-2.8,-29),makeEnemy(3.2,-44),makeEnemy(-1,-68),makeEnemy(4,-103)];
+let kills=0,health=100,started=false,jumpV=0,grounded=true,fireCooldown=0;
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '){e.preventDefault();if(grounded&&started){jumpV=7;grounded=false;}}if(e.key.toLowerCase()==='r'&&started){player.position.set(0,0,1);player.rotation.y=0;health=100;document.getElementById('health').textContent='100';}});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let joy={x:0,y:0},joyOn=false,mobileSprint=false;const stick=document.getElementById('mobile'),nub=document.getElementById('nub');
+function joyMove(e){let r=stick.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,l=Math.hypot(dx,dy),k=l>39?39/l:1;joy.x=dx*k/39;joy.y=dy*k/39;nub.style.left=(35+dx*k)+'px';nub.style.top=(35+dy*k)+'px'}
+stick.addEventListener('pointerdown',e=>{joyOn=true;stick.setPointerCapture(e.pointerId);joyMove(e)});stick.addEventListener('pointermove',e=>{if(joyOn)joyMove(e)});function stopJoy(){joyOn=false;joy={x:0,y:0};nub.style.left='35px';nub.style.top='35px'}stick.addEventListener('pointerup',stopJoy);stick.addEventListener('pointercancel',stopJoy);
+const shootBtn=document.getElementById('shoot'),sprintBtn=document.getElementById('sprint');let fireHeld=false;shootBtn.addEventListener('pointerdown',e=>{fireHeld=true;shoot()});shootBtn.addEventListener('pointerup',()=>fireHeld=false);shootBtn.addEventListener('pointercancel',()=>fireHeld=false);sprintBtn.addEventListener('pointerdown',()=>mobileSprint=true);sprintBtn.addEventListener('pointerup',()=>mobileSprint=false);sprintBtn.addEventListener('pointercancel',()=>mobileSprint=false);
+const raycaster=new THREE.Raycaster();function shoot(){if(!started||fireCooldown>0)return;fireCooldown=.22;let origin=player.position.clone();origin.y+=1.6;let dir=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),player.rotation.y);raycaster.set(origin,dir);let hit=null,dist=38;for(let e of enemies){if(e.hp<=0)continue;let d=origin.distanceTo(e.g.position.clone().add(new THREE.Vector3(0,1.2,0)));let to=e.g.position.clone().sub(origin).normalize();if(d<dist&&to.dot(dir)>.94){dist=d;hit=e}}if(hit){hit.hp--;hit.bar.scale.x=Math.max(.05,hit.hp/3);if(hit.hp<=0){hit.g.visible=false;kills++;document.getElementById('kills').textContent=kills}}}
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button===0)shoot()});
+const clock=new THREE.Clock();let walkPhase=0;
+function loop(){requestAnimationFrame(loop);let dt=Math.min(clock.getDelta(),.04);if(started){fireCooldown=Math.max(0,fireCooldown-dt);let sx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x,sz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joy.y;let moving=Math.hypot(sx,sz)>.08,sprint=keys.shift||mobileSprint,speed=sprint?8.4:4.1;if(moving){let v=new THREE.Vector3(sx,0,sz);v.normalize();let target=Math.atan2(v.x,-v.z);player.rotation.y=target;player.position.x+=v.x*speed*dt;player.position.z+=v.z*speed*dt;player.position.x=THREE.MathUtils.clamp(player.position.x,-7.4,7.4);walkPhase+=dt*(sprint?13:8)}limbs.forEach(l=>l.g.rotation.x=Math.sin(walkPhase+l.phase)*(moving?(sprint?.70:.43):.025));coatL.rotation.x=Math.sin(walkPhase*.55)*.08;coatR.rotation.x=-Math.sin(walkPhase*.55)*.08;
+if(!grounded){player.position.y+=jumpV*dt;jumpV-=18*dt;if(player.position.y<=0){player.position.y=0;jumpV=0;grounded=true;}}
+if(keys[' ']&&grounded){jumpV=7;grounded=false}if(fireHeld)shoot();
+for(let e of enemies){if(e.hp<=0)continue;let dx=player.position.x-e.g.position.x,dz=player.position.z-e.g.position.z,d=Math.hypot(dx,dz);if(d<17&&d>2.2){e.g.position.x+=dx/d*1.1*dt;e.g.position.z+=dz/d*1.1*dt}}
+}
+const offset=new THREE.Vector3(0,3.6,7.6).applyAxisAngle(new THREE.Vector3(0,1,0),player.rotation.y);let targetCam=player.position.clone().add(offset);camera.position.lerp(targetCam,1-Math.exp(-5*dt));camera.lookAt(player.position.x,player.position.y+1.55,player.position.z-1.2);
+renderer.render(scene,camera)}
+document.getElementById('play').addEventListener('click',()=>{started=true;document.getElementById('overlay').style.display='none';loading.textContent='3D WORLD READY'});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setSize(innerWidth,innerHeight)});
+loop();loading.textContent='3D WORLD READY';
+})();
+</script></body></html>
