@@ -73,7 +73,7 @@ function humanoid(kind='hero'){
  mesh(hips,new THREE.CylinderGeometry(.105,.13,.22,14),skin,0,1.36,0);
  const head=new THREE.Group();head.position.set(0,1.53,-.015);hips.add(head);rig.head=head;
  let face=mesh(head,new THREE.SphereGeometry(.30,24,18),skin,0,0,0);face.scale.set(.91,1.12,.88);
- mesh(head,new THREE.SphereGeometry(.335,22,16),M.hair,0,.16,.025).scale.set(1.06,.72,1.02);
+ mesh(head,new THREE.SphereGeometry(.355,22,16),M.hair,0,.17,.035).scale.set(1.08,.82,1.06);
  // textured afro curls on hero, compact haircut on enemy
  if(!enemy){for(let i=0;i<24;i++){let a=i*2.399,r=.24+(i%4)*.018,x=Math.cos(a)*r,y=.13+Math.sin(a)*r*.60,z=.04+Math.sin(a*2)*.10;mesh(head,new THREE.SphereGeometry(.058,7,6),M.hair,x,y,z);}}
  for(let s of [-1,1]){
@@ -93,20 +93,20 @@ function humanoid(kind='hero'){
  // Shoulder pivots are lowered to the actual shoulder line. Each arm has upper arm,
  // elbow, forearm and hand so the rifle is held by the hands rather than floating.
  for(let s of [-1,1]){
-   let shoulder=new THREE.Group();shoulder.position.set(s*.43,1.12,0);hips.add(shoulder);
-   capsule(shoulder,0,-.22,0,.135,.39,clothes,[1,1,.94]);
-   let elbow=new THREE.Group();elbow.position.set(0,-.43,-.015);shoulder.add(elbow);
-   capsule(elbow,0,-.18,-.012,.115,.34,clothes);
-   mesh(elbow,new THREE.SphereGeometry(.105,12,9),skin,0,-.39,-.03);
+   let shoulder=new THREE.Group();shoulder.position.set(s*.54,1.10,0);hips.add(shoulder);
+   capsule(shoulder,0,-.22,0,.145,.43,clothes,[1,1,.94]);
+   let elbow=new THREE.Group();elbow.position.set(0,-.46,-.015);shoulder.add(elbow);
+   capsule(elbow,0,-.18,-.012,.125,.37,clothes);
+   mesh(elbow,new THREE.SphereGeometry(.115,12,9),skin,0,-.42,-.045);
    rig.arms.push({shoulder,elbow,side:s});
  }
  // Separate thigh, shin and boot pivots create a readable full human stance.
  for(let s of [-1,1]){
    let hip=new THREE.Group();hip.position.set(s*.22,-.02,0);hips.add(hip);
-   capsule(hip,0,-.27,0,.16,.44,clothes,[1,1,.96]);
+   capsule(hip,0,-.27,0,.16,.44,enemy?clothes:M.pants,[1,1,.96]);
    let knee=new THREE.Group();knee.position.set(0,-.53,0);hip.add(knee);
    mesh(knee,new THREE.SphereGeometry(.145,12,10),clothes,0,-.015,0);
-   capsule(knee,0,-.245,0,.135,.36,clothes);
+   capsule(knee,0,-.245,0,.135,.36,enemy?clothes:M.pants);
    mesh(knee,new THREE.BoxGeometry(.30,.16,.47),M.black,0,-.47,-.115);
    box(knee,0,-.30,-.17,.17,.10,.025,M.gold);
    rig.legs.push({hip,knee,side:s});
